@@ -47,7 +47,6 @@ To analyze customers who own both savings and investment accounts and compute th
 
 Understanding the structure of the plans_plan table and aligning conditions (is_a_fund, is_regular_savings) with customer intent.
 
-Sure! Here's **Question 2 and 3** in **GitHub-flavored Markdown** format, styled for use in a `README.md` file:
 
 ---
 
@@ -69,7 +68,7 @@ Segment customers based on how frequently they transact.
 
 ###  **Challenge**
 
-Ensuring accurate monthly grouping and filtering only successful transactions (`transaction_status = 'success'`). This was resolved using proper time formatting and conditional filtering within a CTE.
+Ensured accurate monthly grouping and filtering only successful transactions (`transaction_status = 'success'`). This was resolved using proper time formatting and conditional filtering within a CTE.
 
 ---
 
@@ -102,7 +101,39 @@ Estimate CLV using account tenure and transaction activity.
 
 ---
 
-Let me know if you'd like these added to a full `README.md` or need the remaining questions formatted this way too.
+
+###  Question 4: Account Inactivity Flagging
+
+#### **Goal**
+
+Identify all active accounts (either **savings** or **investments**) that have had **no deposit transactions in the last 365 days**.
+
+#### **Approach**
+
+* First, confirmed that the `is_active` field in `users_customuser` has only two values (0: Inactive, 1: Active).
+* Used a **CTE (`plan_type`)** to label accounts based on whether they are savings or investment:
+
+  * `is_a_fund = 1 → Investment`
+  * `is_regular_savings = 1 → Savings`
+* Created a second **CTE (`last_trxn_details`)** to extract:
+
+  * Each `plan_id`, `owner_id`, and the `last_returns_date` as the last known deposit.
+  * Calculated `inactivity_days` using `TIMESTAMPDIFF` to compare `last_returns_date` to the current date.
+* Filtered results to include only customers whose `inactivity_days > 365`.
+* Final result joins:
+
+  * `users_customuser` (to filter only active users),
+  * `plan_type` (to identify account type), and
+  * `last_trxn_details` (to calculate inactivity).
+
+#### **Challenge**
+
+* The `savings_savingsaccount` table contained **multiple entries per user**, leading to **duplicate rows** in the result.
+* Detected this when observing identical `owner_id`s with different `transaction_date` values but same `inactivity_days`.
+* To solve this:
+
+  * I ensured deduplication by applying `MAX(last_returns_date)` to retrieve the **most recent** transaction per account.
+
 
 
 ## Author
