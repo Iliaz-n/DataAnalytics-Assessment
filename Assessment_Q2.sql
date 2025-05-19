@@ -19,11 +19,11 @@ Tables:
 # Integrate the perception of time
 WITH avg_trxn_per_month AS
 (
-	SELECT owner_id, DATE_FORMAT(transaction_date, '%Y-%M') AS month_of_year, 
+	SELECT owner_id, DATE_FORMAT(transaction_date, '%Y-%m') AS month_of_year, 
 		COUNT(*) AS no_of_transaction
 	FROM savings_savingsaccount AS ss
 	WHERE ss.transaction_status = 'success'
-	GROUP BY owner_id, DATE_FORMAT(transaction_date, '%Y-%M')
+	GROUP BY owner_id, DATE_FORMAT(transaction_date, '%Y-%m')
 ),
 
 avg_trxn AS 
