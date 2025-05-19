@@ -21,7 +21,7 @@ and is_regular_savings as Savings
 */
 WITH plan_type AS
 (
-	SELECT owner_id,
+	SELECT owner_id, 
 		CASE
 			WHEN pp.is_a_fund = 1 THEN 'Investment'
 			WHEN pp.is_regular_savings = 1 THEN 'Savings'
@@ -38,10 +38,11 @@ date any form of deposit was made.
 */
 last_trxn_details AS
 (
-	SELECT plan_id, owner_id, DATE(transaction_date) AS last_transaction_date,
-		TIMESTAMPDIFF(DAY, last_returns_date, NOW()) AS inactivity_days
+	SELECT plan_id, owner_id, MAX(last_returns_date) AS last_transaction_date,
+		TIMESTAMPDIFF(DAY, MAX(last_returns_date), NOW()) AS inactivity_days
 	FROM savings_savingsaccount
-	WHERE TIMESTAMPDIFF(DAY, last_returns_date, NOW()) > 365
+    GROUP BY plan_id, owner_id
+	HAVING inactivity_days > 365
 )
 
 SELECT ld.plan_id, ld.owner_id, pt.`type`,
